@@ -1,1 +1,0 @@
-# Elegant_E-commerce_project_backend
