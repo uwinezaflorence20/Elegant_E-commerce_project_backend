@@ -42,4 +42,15 @@ public class UserService {
 
         return "Please check your email to set your password.";
     }
+    public String setPassword(String email, String newPassword) {
+        User user = userRepository.findByEmail(email)
+                .orElseThrow(() -> new RuntimeException("User not found with this email: " + email));
+
+        String encodedPassword = passwordEncoder.encode(newPassword); // Hash the password
+        user.setPassword(encodedPassword);
+        userRepository.save(user);
+
+        return "New password set successfully. Login with your new password.";
+    }
+
 }
