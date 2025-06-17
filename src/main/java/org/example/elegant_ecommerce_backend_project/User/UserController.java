@@ -9,6 +9,7 @@ import lombok.RequiredArgsConstructor;
 
 import org.example.elegant_ecommerce_backend_project.exception.EmailAlreadyExistsException;
 import org.example.elegant_ecommerce_backend_project.exception.InvalidCredentialsException;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
@@ -50,5 +51,9 @@ public class UserController {
         throw new InvalidCredentialsException();
     }
 
+    @PutMapping("/forgotPassword")
+    public ResponseEntity<String> forgotPassword(@RequestParam String email) {
+        return new ResponseEntity<>(userService.forgotPassword(email), HttpStatus.OK);
+    }
 
 }
