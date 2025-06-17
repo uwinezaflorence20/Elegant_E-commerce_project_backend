@@ -6,6 +6,9 @@ import org.example.elegant_ecommerce_backend_project.Config.JwtUtil;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
+
+import org.example.elegant_ecommerce_backend_project.exception.EmailAlreadyExistsException;
+import org.example.elegant_ecommerce_backend_project.exception.InvalidCredentialsException;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
@@ -24,7 +27,7 @@ public class UserController {
     @PostMapping("/register")
     public ResponseEntity<?> register(@Valid @RequestBody RegisterRequest request) {
         if (userService.findByEmail(request.getEmail()).isPresent()) {
-            return ResponseEntity.badRequest().body("Email already exists.");
+            throw new EmailAlreadyExistsException();
         }
         User user = userService.registerUser(
                 request.getFullName(),
@@ -44,6 +47,8 @@ public class UserController {
             response.put("token", token);
             return ResponseEntity.ok(response);
         }
-        return ResponseEntity.status(401).body("Invalid email or password.");
+        throw new InvalidCredentialsException();
     }
+
+
 }
