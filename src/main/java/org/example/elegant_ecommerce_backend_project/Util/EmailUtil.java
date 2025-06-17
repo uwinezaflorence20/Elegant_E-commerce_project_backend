@@ -12,18 +12,20 @@ public class EmailUtil {
     @Autowired
     private JavaMailSender javaMailSender;
 
-    public void sendSetPasswordEmail(String email) throws MessagingException {
+    public void sendSetPasswordEmail(String email, String token) throws MessagingException {
+        String resetLink = "http://localhost:8080/api/users/resetPassword?token=" + token;
+
         MimeMessage mimeMessage = javaMailSender.createMimeMessage();
-        MimeMessageHelper mimeMessageHelper = new MimeMessageHelper(mimeMessage, true); // Add 'true' for HTML
-
+        MimeMessageHelper mimeMessageHelper = new MimeMessageHelper(mimeMessage);
         mimeMessageHelper.setTo(email);
-        mimeMessageHelper.setSubject("Set Password");
+        mimeMessageHelper.setSubject("Reset Your Password");
         mimeMessageHelper.setText("""
-                <div>
-                    <a href="http://localhost:8080/set-password?email=%s" target="_blank">Click to set password</a>
-                </div>
-                """.formatted(email), true); // 'true' enables HTML
-
+            <div>
+            <p>Click the link below to reset your password:</p>
+            <a href="%s">Reset Password</a>
+            </div>
+            """.formatted(resetLink), true);
         javaMailSender.send(mimeMessage);
     }
+
 }

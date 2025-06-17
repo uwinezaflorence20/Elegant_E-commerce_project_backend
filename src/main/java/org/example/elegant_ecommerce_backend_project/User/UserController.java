@@ -57,7 +57,16 @@ public class UserController {
     }
 
     @PutMapping("/resetPassword")
-    public ResponseEntity<String> resetPassword(@RequestParam String email, @RequestParam String newPassword) {
-        return new ResponseEntity<>(userService.setPassword(email,newPassword),HttpStatus.OK);
+    public ResponseEntity<String> resetPassword(
+            @RequestParam String token,
+            @RequestParam String newPassword,
+            @RequestParam String confirmPassword
+    ) {
+        if (!newPassword.equals(confirmPassword)) {
+            return ResponseEntity.badRequest().body("Passwords do not match.");
+        }
+
+        return new ResponseEntity<>(userService.setPasswordByToken(token, newPassword), HttpStatus.OK);
     }
+
 }
