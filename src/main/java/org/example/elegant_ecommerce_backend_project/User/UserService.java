@@ -1,7 +1,5 @@
 package org.example.elegant_ecommerce_backend_project.User;
 
-import io.jsonwebtoken.Jwts;
-import io.jsonwebtoken.SignatureAlgorithm;
 import jakarta.mail.MessagingException;
 import lombok.RequiredArgsConstructor;
 import org.example.elegant_ecommerce_backend_project.Util.EmailUtil;
@@ -9,11 +7,9 @@ import org.example.elegant_ecommerce_backend_project.Util.JwtUtil;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
 
-import java.time.LocalDateTime;
-import java.util.Date;
+
 import java.util.Optional;
 
-import org.example.elegant_ecommerce_backend_project.PasswordReset.PasswordResetToken;
 import org.example.elegant_ecommerce_backend_project.PasswordReset.PasswordResetTokenRepository;
 
 
