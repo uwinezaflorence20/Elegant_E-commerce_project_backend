@@ -21,7 +21,7 @@ import java.util.List;
 @Table(name = "user_table")
 @AllArgsConstructor
 @NoArgsConstructor
-// user tables by milli
+// user tables by milli and florence
 public class User implements UserDetails {
     public User(String fullName, String UserName, String email, String password) {
         this.fullName = fullName;
