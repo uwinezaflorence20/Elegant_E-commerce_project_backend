@@ -1,0 +1,15 @@
+services:
+  database:
+    image: postgres:latest
+    container_name: my_postgres_db
+    ports:
+      - "5432:5432"
+    environment:
+      - POSTGRES_USER=uwineza
+      - POSTGRES_PASSWORD=F1ette20@
+      - POSTGRES_DB=Elegant
+    volumes:
+      - pg_storage:/var/lib/postgres/data
+
+volumes:
+  pg_storage:
