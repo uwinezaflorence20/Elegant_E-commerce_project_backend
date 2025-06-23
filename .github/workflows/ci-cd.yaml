@@ -1,0 +1,32 @@
+name: Build and push to Docker HUB
+
+on:
+  push:
+    branches:
+      - main
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Get codes from github - Checkout code
+        uses: actions/checkout@v4
+
+      - name: Install Java - Setup Java
+        uses: actions/setup-java@v4
+        with:
+          java-version: 17
+          distribution: 'temurin'
+      - name: Build application
+        run: |
+          chmod +x ./mvnw
+          ./mvnw clean package -DskipTests -e -X          
+
+      - name: List target directory
+        run: ls -l target
+
+      - name: Save the built artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: 'demo1'
+          path: target/demo1*.jar
