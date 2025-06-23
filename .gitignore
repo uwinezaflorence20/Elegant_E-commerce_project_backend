@@ -28,10 +28,5 @@ target/
 build/
 !**/src/main/**/build/
 !**/src/test/**/build/
+src\main\resources\application.properties
 
-### VS Code ###
-.vscode/
-<<<<<<< HEAD
-C:\Users\HP\Desktop\healthProject\src\main\resources\application.properties
-=======
->>>>>>> a56ec11 (Login and signup)
