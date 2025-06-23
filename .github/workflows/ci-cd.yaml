@@ -17,6 +17,7 @@ jobs:
         with:
           java-version: 17
           distribution: 'temurin'
+          
       - name: Build application
         run: |
           chmod +x ./mvnw
