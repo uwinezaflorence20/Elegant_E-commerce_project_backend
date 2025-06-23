@@ -1,6 +1,7 @@
 package org.example.elegant_ecommerce_backend_project.User;
 
 import org.example.elegant_ecommerce_backend_project.Dto.LoginRequest;
+import org.example.elegant_ecommerce_backend_project.Dto.LoginResponse;
 import org.example.elegant_ecommerce_backend_project.Dto.RegisterRequest;
 import org.example.elegant_ecommerce_backend_project.Config.JwtUtil;
 import io.swagger.v3.oas.annotations.tags.Tag;
@@ -35,21 +36,33 @@ public class UserController {
                 request.getUserName(),
                 request.getEmail(),
                 request.getPassword()
+
         );
         return ResponseEntity.ok(user);
     }
+//
+//    @PostMapping("/login")
+//    public ResponseEntity<?> login(@Valid @RequestBody LoginRequest request) {
+//        Optional<User> userOpt = userService.findByEmail(request.getEmail());
+//        if (userOpt.isPresent() && userService.checkPassword(request.getPassword(), userOpt.get().getPassword())) {
+//            String token = jwtUtil.generateToken(request.getEmail());
+//            HashMap<String, String> response = new HashMap<>();
+//            response.put("token", token);
+//            return ResponseEntity.ok(response);
+//        }
+//        throw new InvalidCredentialsException();
+//    }
 
     @PostMapping("/login")
     public ResponseEntity<?> login(@Valid @RequestBody LoginRequest request) {
-        Optional<User> userOpt = userService.findByEmail(request.getEmail());
-        if (userOpt.isPresent() && userService.checkPassword(request.getPassword(), userOpt.get().getPassword())) {
-            String token = jwtUtil.generateToken(request.getEmail());
-            HashMap<String, String> response = new HashMap<>();
-            response.put("token", token);
+        try {
+            LoginResponse response = userService.loginUser(request.getEmail(), request.getPassword());
             return ResponseEntity.ok(response);
+        } catch (RuntimeException e) {
+            throw new InvalidCredentialsException();
         }
-        throw new InvalidCredentialsException();
     }
+
 
     @PutMapping("/forgotPassword")
     public ResponseEntity<String> forgotPassword(@RequestParam String email) {
@@ -67,6 +80,26 @@ public class UserController {
         }
 
         return new ResponseEntity<>(userService.setPasswordByToken(token, newPassword), HttpStatus.OK);
+    }
+
+    @GetMapping("/getAllUser")
+    public ResponseEntity<Iterable<User>> getAllUsers() {
+        return ResponseEntity.ok(userService.getAllUsers());
+    }
+
+    @GetMapping("/{id}")
+    public ResponseEntity<?> getUserById(@PathVariable Long id) {
+        Optional<User> userOpt = userService.findById(id);
+        if (userOpt.isPresent()) {
+            return ResponseEntity.ok(userOpt.get());
+        } else {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body("User not found with ID: " + id);
+        }
+    }
+
+    @DeleteMapping("/{id}")
+    public ResponseEntity<String> deleteUser(@PathVariable Long id) {
+        return ResponseEntity.ok(userService.deleteUserById(id));
     }
 
 }

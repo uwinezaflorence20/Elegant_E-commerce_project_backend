@@ -13,8 +13,7 @@ public class EmailUtil {
     private JavaMailSender javaMailSender;
 
     public void sendSetPasswordEmail(String email, String token) throws MessagingException {
-        String resetLink = "http://localhost:8080/api/users/resetPassword?token=" + token;
-
+        String resetLink = "https://elegant-6cw1.vercel.app/new-password?token=" + token;
         MimeMessage mimeMessage = javaMailSender.createMimeMessage();
         MimeMessageHelper mimeMessageHelper = new MimeMessageHelper(mimeMessage);
         mimeMessageHelper.setTo(email);

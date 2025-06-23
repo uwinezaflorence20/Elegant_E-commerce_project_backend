@@ -14,46 +14,53 @@ import org.springframework.security.core.userdetails.UserDetails;
 import java.util.Collection;
 import java.util.List;
 
-
 @Entity
 @Getter
 @Setter
 @Table(name = "user_table")
 @AllArgsConstructor
 @NoArgsConstructor
-
 public class User implements UserDetails {
-    public User(String fullName, String UserName, String email, String password) {
+
+    public User(String fullName, String userName, String email, String password, String role) {
         this.fullName = fullName;
-        this.UserName = UserName;
+        this.UserName = userName;
         this.email = email;
         this.password = password;
+        this.role = role;
     }
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
+
     @NotBlank
     @Schema(required = true, maxLength = 50)
     private String fullName;
+
     @NotBlank
-    @Schema(required = true, maxLength =50)
+    @Schema(required = true, maxLength = 50)
     private String UserName;
+
     @NotBlank
     @Schema(required = true, maxLength = 50)
     @Column(unique = true)
     private String email;
+
     private String password;
+
+    @NotBlank
+    @Column(name = "role")
+    private String role = "ROLE_USER";  // default role
 
     @Override
     public Collection<? extends GrantedAuthority> getAuthorities() {
-        return List.of(new SimpleGrantedAuthority("ROLE_USER"));
+        return List.of(new SimpleGrantedAuthority(this.role));
     }
 
     @Override
     public String getUsername() {
         return this.UserName;
-
     }
 
     @Override
@@ -74,8 +81,5 @@ public class User implements UserDetails {
     @Override
     public boolean isEnabled() {
         return true;
-
     }
-
-
 }
