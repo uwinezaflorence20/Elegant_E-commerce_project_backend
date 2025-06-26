@@ -1,5 +1,6 @@
 package org.example.elegant_ecommerce_backend_project.categories;
 
+import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import org.example.elegant_ecommerce_backend_project.Dto.CategoryDto;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
@@ -8,7 +9,8 @@ import org.springframework.web.bind.annotation.*;
 import java.util.List;
 
 @RestController
-@RequestMapping("/api/categories")  // Proper base path for categories
+@RequestMapping("/api/categories")
+@SecurityRequirement(name = "auth")
 public class CategoryController {
 
     @Autowired
