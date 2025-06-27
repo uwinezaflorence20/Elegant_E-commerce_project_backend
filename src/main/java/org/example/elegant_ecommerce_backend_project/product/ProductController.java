@@ -5,6 +5,7 @@ import lombok.RequiredArgsConstructor;
 import org.example.elegant_ecommerce_backend_project.Dto.ProductDto;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 import java.io.IOException;
@@ -18,42 +19,44 @@ public class ProductController {
 
     private final ProductService productService;
 
-    // Create product (multipart/form-data for image upload)
+    // Only admin can create
+    @PreAuthorize("hasRole('ADMIN')")
     @PostMapping(consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
     public ResponseEntity<Product> createProduct(@ModelAttribute ProductDto productDto) throws IOException {
         Product product = productService.createProduct(productDto);
         return ResponseEntity.ok(product);
     }
 
-    // Get all products
+    // Open to all (or you can restrict if needed)
     @GetMapping
     public ResponseEntity<List<Product>> getAllProducts() {
         List<Product> products = productService.getAllProducts();
         return ResponseEntity.ok(products);
     }
 
-    // Get product by ID
     @GetMapping("/{id}")
     public ResponseEntity<Product> getProductById(@PathVariable Long id) {
         Product product = productService.getProductById(id);
         return ResponseEntity.ok(product);
     }
 
-    // Update product (multipart/form-data for image update)
+    // Only admin can update
+    @PreAuthorize("hasRole('ADMIN')")
     @PutMapping(value = "/{id}", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
     public ResponseEntity<Product> updateProduct(@PathVariable Long id, @ModelAttribute ProductDto productDto) throws IOException {
         Product updatedProduct = productService.updateProduct(id, productDto);
         return ResponseEntity.ok(updatedProduct);
     }
 
-    // Delete product by ID
+    // Only admin can delete
+    @PreAuthorize("hasRole('ADMIN')")
     @DeleteMapping("/{id}")
     public ResponseEntity<Void> deleteProduct(@PathVariable Long id) {
         productService.deleteProduct(id);
         return ResponseEntity.noContent().build();
     }
 
-    // Search products by title and/or categoryId (query params)
+    // Search - open or restrict as needed
     @GetMapping("/search")
     public ResponseEntity<List<Product>> searchProducts(
             @RequestParam(required = false) String title,

@@ -4,6 +4,7 @@ import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import org.example.elegant_ecommerce_backend_project.Dto.CategoryDto;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -16,21 +17,22 @@ public class CategoryController {
     @Autowired
     private CategoryService categoryService;
 
-
+    // Only admin can create category
+    @PreAuthorize("hasRole('ADMIN')")
     @PostMapping
     public ResponseEntity<String> createCategory(@RequestBody CategoryDto categoryDto) {
         categoryService.createCategory(categoryDto);
         return ResponseEntity.ok("Category created successfully");
     }
 
-    // List all categories
+    // List all categories (open for all)
     @GetMapping
     public ResponseEntity<List<Category>> listCategory() {
         List<Category> categories = categoryService.listCategory();
         return ResponseEntity.ok(categories);
     }
 
-    // Get category by id
+    // Get category by id (open for all)
     @GetMapping("/{id}")
     public ResponseEntity<Category> getCategoryById(@PathVariable Long id) {
         Category category = categoryService.getCategoryById(id);
@@ -40,7 +42,8 @@ public class CategoryController {
         return ResponseEntity.ok(category);
     }
 
-    // Update category by id
+    // Only admin can update category
+    @PreAuthorize("hasRole('ADMIN')")
     @PutMapping("/{id}")
     public ResponseEntity<String> updateCategory(@PathVariable Long id, @RequestBody CategoryDto categoryDTO) {
         boolean updated = categoryService.updateCategory(id, categoryDTO);
@@ -50,7 +53,8 @@ public class CategoryController {
         return ResponseEntity.notFound().build();
     }
 
-    // Delete category by id
+    // Only admin can delete category
+    @PreAuthorize("hasRole('ADMIN')")
     @DeleteMapping("/{id}")
     public ResponseEntity<String> deleteCategory(@PathVariable Long id) {
         boolean deleted = categoryService.deleteCategory(id);
