@@ -30,7 +30,7 @@ jobs:
         uses: actions/upload-artifact@v4
         with:
           name: 'demo1'
-          path: demo1-0.0.1-SNAPSHOT.jar
+          path: target/demo1-0-0-1-SNAPSHOT.jar
 
   docker:
     runs-on: ubuntu-latest
