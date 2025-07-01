@@ -62,7 +62,10 @@ public class User implements UserDetails {
     public String getUsername() {
         return this.UserName;
     }
-
+    @Override
+    public String getPassword() {
+        return this.password;
+    }
     @Override
     public boolean isAccountNonExpired() {
         return true;

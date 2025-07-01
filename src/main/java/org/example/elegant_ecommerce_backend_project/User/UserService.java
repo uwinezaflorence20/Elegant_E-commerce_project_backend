@@ -2,10 +2,10 @@ package org.example.elegant_ecommerce_backend_project.User;
 
 import jakarta.mail.MessagingException;
 import lombok.RequiredArgsConstructor;
+import org.example.elegant_ecommerce_backend_project.Config.JwtUtil;
 import org.example.elegant_ecommerce_backend_project.Dto.LoginResponse;
 import org.example.elegant_ecommerce_backend_project.PasswordReset.PasswordResetTokenRepository;
 import org.example.elegant_ecommerce_backend_project.Util.EmailUtil;
-import org.example.elegant_ecommerce_backend_project.Util.JwtUtil;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
 
@@ -20,6 +20,7 @@ public class UserService {
     private final UserRepository userRepository;
     private final EmailUtil emailUtil;
     private final PasswordResetTokenRepository tokenRepository;
+    private final JwtUtil jwtUtil;
 
     private final String adminEmail = "florenceuwineza36@gmail.com";
 
@@ -38,19 +39,21 @@ public class UserService {
             throw new RuntimeException("Incorrect password");
         }
 
-        String token = JwtUtil.generateToken(email);
+        String token = jwtUtil.generateToken(email);
 
         String message = "ROLE_ADMIN".equalsIgnoreCase(user.getRole())
                 ? "Logged in as Admin"
                 : "Logged in as User";
 
-        return new LoginResponse(token, message);
+        return new LoginResponse(token, message, user);
     }
+
+
     public String forgotPassword(String email) {
         User user = userRepository.findByEmail(email)
                 .orElseThrow(() -> new RuntimeException("User not found with this email: " + email));
 
-        String token = JwtUtil.generateToken(email);
+        String token = jwtUtil.generateToken(email);
         try {
             emailUtil.sendSetPasswordEmail(email, token);
         } catch (MessagingException e) {
@@ -60,11 +63,10 @@ public class UserService {
         return "Please check your email to set your password.";
     }
 
-    // Reset password using token
     public String setPasswordByToken(String token, String newPassword) {
         String email;
         try {
-            email = JwtUtil.extractEmail(token);
+            email = jwtUtil.getEmailFromToken(token); // FIXED method call
         } catch (Exception e) {
             throw new RuntimeException("Invalid or expired reset token.");
         }
@@ -77,7 +79,6 @@ public class UserService {
         return "Password reset successful.";
     }
 
-    // Basic utility methods
     public Optional<User> findByEmail(String email) {
         return userRepository.findByEmail(email);
     }
@@ -102,5 +103,4 @@ public class UserService {
             throw new RuntimeException("User not found with ID: " + id);
         }
     }
-
 }
