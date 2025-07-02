@@ -40,18 +40,7 @@ public class UserController {
         );
         return ResponseEntity.ok(user);
     }
-//
-//    @PostMapping("/login")
-//    public ResponseEntity<?> login(@Valid @RequestBody LoginRequest request) {
-//        Optional<User> userOpt = userService.findByEmail(request.getEmail());
-//        if (userOpt.isPresent() && userService.checkPassword(request.getPassword(), userOpt.get().getPassword())) {
-//            String token = jwtUtil.generateToken(request.getEmail());
-//            HashMap<String, String> response = new HashMap<>();
-//            response.put("token", token);
-//            return ResponseEntity.ok(response);
-//        }
-//        throw new InvalidCredentialsException();
-//    }
+
 
     @PostMapping("/login")
     public ResponseEntity<?> login(@Valid @RequestBody LoginRequest request) {

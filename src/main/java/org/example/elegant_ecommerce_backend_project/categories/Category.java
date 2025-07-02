@@ -16,7 +16,6 @@ import java.time.LocalDateTime;
 @Entity
 @Table(name = "Categories")
 public class Category {
-//categotry tabel
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;

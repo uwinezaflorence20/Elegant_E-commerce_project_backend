@@ -24,7 +24,7 @@ public class User implements UserDetails {
 
     public User(String fullName, String userName, String email, String password, String role) {
         this.fullName = fullName;
-        this.UserName = userName;
+        this.userName = userName;
         this.email = email;
         this.password = password;
         this.role = role;
@@ -40,7 +40,7 @@ public class User implements UserDetails {
 
     @NotBlank
     @Schema(required = true, maxLength = 50)
-    private String UserName;
+    private String userName;
 
     @NotBlank
     @Schema(required = true, maxLength = 50)
@@ -60,7 +60,12 @@ public class User implements UserDetails {
 
     @Override
     public String getUsername() {
-        return this.UserName;
+        return this.userName;
+    }
+
+    @Override
+    public String getPassword() {
+        return this.password;
     }
 
     @Override

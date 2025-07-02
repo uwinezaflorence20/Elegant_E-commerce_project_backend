@@ -19,7 +19,6 @@ public class ProductController {
 
     private final ProductService productService;
 
-    // Only admin can create
     @PreAuthorize("hasRole('ADMIN')")
     @PostMapping(consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
     public ResponseEntity<Product> createProduct(@ModelAttribute ProductDto productDto) throws IOException {
@@ -27,7 +26,6 @@ public class ProductController {
         return ResponseEntity.ok(product);
     }
 
-    // Open to all (or you can restrict if needed)
     @GetMapping
     public ResponseEntity<List<Product>> getAllProducts() {
         List<Product> products = productService.getAllProducts();
@@ -40,7 +38,6 @@ public class ProductController {
         return ResponseEntity.ok(product);
     }
 
-    // Only admin can update
     @PreAuthorize("hasRole('ADMIN')")
     @PutMapping(value = "/{id}", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
     public ResponseEntity<Product> updateProduct(@PathVariable Long id, @ModelAttribute ProductDto productDto) throws IOException {
@@ -48,7 +45,6 @@ public class ProductController {
         return ResponseEntity.ok(updatedProduct);
     }
 
-    // Only admin can delete
     @PreAuthorize("hasRole('ADMIN')")
     @DeleteMapping("/{id}")
     public ResponseEntity<Void> deleteProduct(@PathVariable Long id) {
@@ -56,7 +52,6 @@ public class ProductController {
         return ResponseEntity.noContent().build();
     }
 
-    // Search - open or restrict as needed
     @GetMapping("/search")
     public ResponseEntity<List<Product>> searchProducts(
             @RequestParam(required = false) String title,
