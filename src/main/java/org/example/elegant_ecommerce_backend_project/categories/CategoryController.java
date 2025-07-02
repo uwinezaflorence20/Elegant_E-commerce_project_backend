@@ -16,23 +16,18 @@ public class CategoryController {
 
     @Autowired
     private CategoryService categoryService;
-
-    // Only admin can create category
     @PreAuthorize("hasRole('ADMIN')")
     @PostMapping
     public ResponseEntity<String> createCategory(@RequestBody CategoryDto categoryDto) {
         categoryService.createCategory(categoryDto);
         return ResponseEntity.ok("Category created successfully");
     }
-
-    // List all categories (open for all)
     @GetMapping
     public ResponseEntity<List<Category>> listCategory() {
         List<Category> categories = categoryService.listCategory();
         return ResponseEntity.ok(categories);
     }
 
-    // Get category by id (open for all)
     @GetMapping("/{id}")
     public ResponseEntity<Category> getCategoryById(@PathVariable Long id) {
         Category category = categoryService.getCategoryById(id);
@@ -42,7 +37,6 @@ public class CategoryController {
         return ResponseEntity.ok(category);
     }
 
-    // Only admin can update category
     @PreAuthorize("hasRole('ADMIN')")
     @PutMapping("/{id}")
     public ResponseEntity<String> updateCategory(@PathVariable Long id, @RequestBody CategoryDto categoryDTO) {
@@ -53,7 +47,6 @@ public class CategoryController {
         return ResponseEntity.notFound().build();
     }
 
-    // Only admin can delete category
     @PreAuthorize("hasRole('ADMIN')")
     @DeleteMapping("/{id}")
     public ResponseEntity<String> deleteCategory(@PathVariable Long id) {

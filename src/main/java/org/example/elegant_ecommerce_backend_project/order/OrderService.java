@@ -3,13 +3,13 @@ package org.example.elegant_ecommerce_backend_project.order;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import org.example.elegant_ecommerce_backend_project.Dto.OrderItemDTO;
+import org.example.elegant_ecommerce_backend_project.Dto.OrderDTO;
 import org.example.elegant_ecommerce_backend_project.User.User;
 import org.example.elegant_ecommerce_backend_project.User.UserRepository;
 import org.example.elegant_ecommerce_backend_project.product.Product;
 import org.example.elegant_ecommerce_backend_project.product.ProductRepository;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
-import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
@@ -22,18 +22,16 @@ public class OrderService {
 
     private final OrderRepository orderRepository;
     private final ProductRepository productRepository;
-    private final UserRepository userRepository;  // Inject UserRepository here
+    private final UserRepository userRepository;
 
     @Transactional
-    public Order createOrder(List<OrderItemDTO> itemsDTO) {
+    public OrderDTO createOrder(List<OrderItemDTO> itemsDTO) {
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
 
-        // Cast principal to UserDetails (Spring Security)
-        UserDetails userDetails = (UserDetails) authentication.getPrincipal();
+        String username = authentication.getName();
 
-        // Fetch your custom User entity by username (or email depending on your setup)
-        User currentUser = userRepository.findByUserName(userDetails.getUsername())
-                .orElseThrow(() -> new RuntimeException("User not found with username: " + userDetails.getUsername()));
+        User currentUser = userRepository.findByUserName(username)
+                .orElseThrow(() -> new RuntimeException("User not found with username: " + username));
 
         Order order = new Order();
         order.setUser(currentUser);
@@ -57,29 +55,42 @@ public class OrderService {
 
         order.setItems(orderItems);
 
-        return orderRepository.save(order);
+        Order savedOrder = orderRepository.save(order);
+
+        return convertToDTO(savedOrder);
     }
 
-    public Order getOrderById(Long id) {
-        return orderRepository.findById(id)
+    public OrderDTO getOrderById(Long id) {
+        Order order = orderRepository.findById(id)
                 .orElseThrow(() -> new RuntimeException("Order not found with id: " + id));
+
+        return convertToDTO(order);
     }
 
-    public List<Order> getOrdersByCurrentUser() {
+    public List<OrderDTO> getOrdersByCurrentUser() {
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
-        UserDetails userDetails = (UserDetails) authentication.getPrincipal();
 
-        User currentUser = userRepository.findByUserName(userDetails.getUsername())
-                .orElseThrow(() -> new RuntimeException("User not found with username: " + userDetails.getUsername()));
+        String username = authentication.getName();
 
-        return orderRepository.findByUserId(currentUser.getId());
+        User currentUser = userRepository.findByUserName(username)
+                .orElseThrow(() -> new RuntimeException("User not found with username: " + username));
+
+        List<Order> orders = orderRepository.findByUserId(currentUser.getId());
+
+        List<OrderDTO> ordersDTO = new ArrayList<>();
+        for (Order order : orders) {
+            ordersDTO.add(convertToDTO(order));
+        }
+
+        return ordersDTO;
     }
 
-    public Order updateOrderStatus(Long orderId, String newStatus) {
+    public OrderDTO updateOrderStatus(Long orderId, String newStatus) {
         Order order = orderRepository.findById(orderId)
                 .orElseThrow(() -> new RuntimeException("Order not found with id: " + orderId));
         order.setStatus(newStatus);
-        return orderRepository.save(order);
+        Order updatedOrder = orderRepository.save(order);
+        return convertToDTO(updatedOrder);
     }
 
     public void cancelOrder(Long orderId) {
@@ -87,5 +98,27 @@ public class OrderService {
                 .orElseThrow(() -> new RuntimeException("Order not found with id: " + orderId));
         order.setStatus("CANCELLED");
         orderRepository.save(order);
+    }
+
+    private OrderDTO convertToDTO(Order order) {
+        OrderDTO dto = new OrderDTO();
+        dto.setId(order.getId());
+        dto.setStatus(order.getStatus());
+        dto.setCreatedAt(order.getCreatedAt());
+        dto.setUserId(order.getUser().getId());
+        dto.setUserName(order.getUser().getFullName());
+
+        List<OrderItemDTO> itemsDTO = new ArrayList<>();
+        for (OrderItem item : order.getItems()) {
+            OrderItemDTO itemDTO = new OrderItemDTO();
+            itemDTO.setProductId(item.getProduct().getId());
+            itemDTO.setProductName(item.getProduct().getTitle());
+            itemDTO.setQuantity(item.getQuantity());
+            itemDTO.setPrice(item.getPrice());
+            itemsDTO.add(itemDTO);
+        }
+
+        dto.setItems(itemsDTO);
+        return dto;
     }
 }

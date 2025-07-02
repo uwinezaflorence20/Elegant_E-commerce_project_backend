@@ -1,5 +1,6 @@
 package org.example.elegant_ecommerce_backend_project.order;
 
+import com.fasterxml.jackson.annotation.JsonBackReference;
 import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.Setter;
@@ -17,6 +18,7 @@ public class OrderItem {
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "order_id")
+    @JsonBackReference  // 👈 prevents infinite loop
     private Order order;
 
     @ManyToOne(fetch = FetchType.LAZY)
@@ -25,7 +27,5 @@ public class OrderItem {
 
     private Integer quantity;
 
-    private Double price; // price at time of order
-
-    // Getters and setters
+    private Double price;
 }

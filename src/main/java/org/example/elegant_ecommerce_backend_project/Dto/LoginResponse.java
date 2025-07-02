@@ -13,7 +13,6 @@ public class LoginResponse {
     private String message;
     private User user;
 
-    // Optional constructor if only token and user are provided
     public LoginResponse(String token, User user) {
         this.token = token;
         this.user = user;
