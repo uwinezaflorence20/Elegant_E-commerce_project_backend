@@ -1,3 +1,72 @@
+#name: Build and push to Docker HUB
+#
+#on:
+#  push:
+#    branches:
+#      - main
+#
+#jobs:
+#  build:
+#    runs-on: ubuntu-latest
+#    steps:
+#      - name: Get codes from github - Checkout code
+#        uses: actions/checkout@v4
+#
+#      - name: Install Java - Setup Java
+#        uses: actions/setup-java@v4
+#        with:
+#          java-version: 17
+#          distribution: 'temurin'
+#
+#      - name: Build application
+#        run: |
+#          chmod +x ./mvnw
+#          ./mvnw clean package -DskipTests -e -X
+#
+#      - name: List target directory
+#        run: ls -l target
+#
+#      - name: Save the built artifact
+#        uses: actions/upload-artifact@v4
+#        with:
+#          name: 'demo1'
+#          path: target/demo1*.jar
+#
+#  docker:
+#    runs-on: ubuntu-latest
+#    needs: build
+#
+#    steps:
+#      # Check out the repository
+#      - name: Checkout code
+#        uses: actions/checkout@v4
+#
+#      # Download the build artifact from the previous job
+#      - name: Download build artifact
+#        uses: actions/download-artifact@v4
+#        with:
+#          name: demo1
+#          path: target
+#
+#      # Login to Docker Hub
+#      - name: Login to Docker Hub
+#        uses: docker/login-action@v3
+#        with:
+#          username: ${{ secrets.DOCKER_HUB_USERNAME }}
+#          password: ${{ secrets.DOCKER_HUB_TOKEN }}
+#
+#      # Build and push Docker image
+#      - name: Build and push Docker image
+#        uses: docker/build-push-action@v6
+#        with:
+#          context: .
+#          push: true
+#          tags: |
+#            ${{ secrets.DOCKER_HUB_USERNAME }}/demo1:latest
+#            ${{ secrets.DOCKER_HUB_USERNAME }}/demo1:${{ github.sha }}
+#
+#
+
 name: Build and push to Docker HUB
 
 on:
@@ -7,12 +76,14 @@ on:
 
 jobs:
   build:
+    name: Build JAR
     runs-on: ubuntu-latest
+
     steps:
-      - name: Get codes from github - Checkout code
+      - name: Checkout code
         uses: actions/checkout@v4
 
-      - name: Install Java - Setup Java
+      - name: Set up Java
         uses: actions/setup-java@v4
         with:
           java-version: 17
@@ -21,41 +92,41 @@ jobs:
       - name: Build application
         run: |
           chmod +x ./mvnw
-          ./mvnw clean package -DskipTests -e -X          
+          ./mvnw clean package -DskipTests
 
-      - name: List target directory
+      - name: List files in target/
         run: ls -l target
 
-      - name: Save the built artifact
+      - name: Upload JAR as artifact
         uses: actions/upload-artifact@v4
         with:
-          name: 'demo1'
-          path: target/demo1*.jar
+          name: demo1
+          path: target/demo1-*.jar
 
   docker:
+    name: Build and Push Docker Image
     runs-on: ubuntu-latest
     needs: build
 
     steps:
-      # Check out the repository
       - name: Checkout code
         uses: actions/checkout@v4
 
-      # Download the build artifact from the previous job
-      - name: Download build artifact
+      - name: Download JAR artifact
         uses: actions/download-artifact@v4
         with:
           name: demo1
           path: target
 
-      # Login to Docker Hub
+      - name: List downloaded files
+        run: ls -l target
+
       - name: Login to Docker Hub
         uses: docker/login-action@v3
         with:
           username: ${{ secrets.DOCKER_HUB_USERNAME }}
           password: ${{ secrets.DOCKER_HUB_TOKEN }}
 
-      # Build and push Docker image
       - name: Build and push Docker image
         uses: docker/build-push-action@v6
         with:
@@ -64,5 +135,4 @@ jobs:
           tags: |
             ${{ secrets.DOCKER_HUB_USERNAME }}/demo1:latest
             ${{ secrets.DOCKER_HUB_USERNAME }}/demo1:${{ github.sha }}
-
 

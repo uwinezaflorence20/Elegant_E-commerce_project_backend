@@ -22,6 +22,7 @@ public class JwtUtil {
                 .compact();
     }
 
+
     public static String extractEmail(String token) {
         return Jwts.parserBuilder()
                 .setSigningKey(SECRET_KEY)
