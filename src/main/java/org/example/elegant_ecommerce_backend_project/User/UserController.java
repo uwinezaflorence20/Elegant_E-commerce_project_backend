@@ -7,11 +7,13 @@ import org.example.elegant_ecommerce_backend_project.Config.JwtUtil;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
+import org.springframework.security.core.userdetails.UserDetails;
 
 import org.example.elegant_ecommerce_backend_project.exception.EmailAlreadyExistsException;
 import org.example.elegant_ecommerce_backend_project.exception.InvalidCredentialsException;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.HashMap;
@@ -90,5 +92,26 @@ public class UserController {
     public ResponseEntity<String> deleteUser(@PathVariable Long id) {
         return ResponseEntity.ok(userService.deleteUserById(id));
     }
+
+    @GetMapping("/profile")
+    public ResponseEntity<?> getProfile(@AuthenticationPrincipal UserDetails userDetails) {
+        Optional<User> userOpt = userService.findByEmail(userDetails.getUsername());
+        if (userOpt.isPresent()) {
+            User user = userOpt.get();
+            HashMap<String, Object> profile = new HashMap<>();
+            profile.put("fullName", user.getFullName());
+            profile.put("username", user.getUsername());
+            profile.put("email", user.getEmail());
+            return ResponseEntity.ok(profile);
+        } else {
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("User not found.");
+        }
+    }
+    @PostMapping("/logout")
+    public ResponseEntity<String> logout() {
+        // Optionally track logout in logs or DB
+        return ResponseEntity.ok("Logged out successfully. Please clear the token on the client side.");
+    }
+
 
 }
