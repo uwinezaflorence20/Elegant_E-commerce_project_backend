@@ -31,6 +31,7 @@ public class UserService {
         return userRepository.save(user);
     }
 
+
     public LoginResponse loginUser(String email, String rawPassword) {
         User user = userRepository.findByEmail(email)
                 .orElseThrow(() -> new RuntimeException("User not found"));
@@ -103,4 +104,5 @@ public class UserService {
             throw new RuntimeException("User not found with ID: " + id);
         }
     }
+
 }
