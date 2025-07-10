@@ -29,8 +29,8 @@ jobs:
       - name: Save the built artifact
         uses: actions/upload-artifact@v4
         with:
-          name: 'demo1'
-          path: target/demo1*.jar
+          name: 'elegant-ecommerce-backend'
+          path: target/elegant-ecommerce-backend*.jar
 
   docker:
     runs-on: ubuntu-latest
@@ -45,7 +45,7 @@ jobs:
       - name: Download build artifact
         uses: actions/download-artifact@v4
         with:
-          name: demo1
+          name: elegant-ecommerce-backend
           path: target
 
       # Login to Docker Hub
