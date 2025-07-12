@@ -6,6 +6,8 @@ import lombok.Getter;
 import lombok.Setter;
 import org.example.elegant_ecommerce_backend_project.product.Product;
 
+import java.math.BigDecimal;
+
 @Getter
 @Setter
 @Entity
@@ -27,5 +29,7 @@ public class OrderItem {
 
     private Integer quantity;
 
-    private Double price;
+    @Column(name = "total_price")
+    private BigDecimal totalPrice;
+
 }

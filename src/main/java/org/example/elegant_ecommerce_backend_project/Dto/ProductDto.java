@@ -4,11 +4,13 @@ import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.Data;
 import org.springframework.web.multipart.MultipartFile;
 
+import java.math.BigDecimal;
+
 @Data
 public class ProductDto {
     private String title;
     private String description;
-    private double price;
+    private BigDecimal price;
     private int quantity;
     private String size;
     private String color;

@@ -1,5 +1,6 @@
 package org.example.elegant_ecommerce_backend_project.Cart;
 
+import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import org.example.elegant_ecommerce_backend_project.Dto.CartItemRequest;
 import org.example.elegant_ecommerce_backend_project.Dto.CartItemResponse;
 import org.springframework.http.ResponseEntity;
@@ -11,6 +12,7 @@ import java.util.List;
 
 @RestController
 @RequestMapping("/api/cart")
+@SecurityRequirement(name = "auth")
 public class CartController {
     private final CartService cartService;
 
