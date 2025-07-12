@@ -1,5 +1,6 @@
 package org.example.elegant_ecommerce_backend_project.User;
 
+import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import org.example.elegant_ecommerce_backend_project.Dto.LoginRequest;
 import org.example.elegant_ecommerce_backend_project.Dto.LoginResponse;
 import org.example.elegant_ecommerce_backend_project.Dto.RegisterRequest;
@@ -93,8 +94,13 @@ public class UserController {
         return ResponseEntity.ok(userService.deleteUserById(id));
     }
 
+    @SecurityRequirement(name = "auth")
     @GetMapping("/profile")
     public ResponseEntity<?> getProfile(@AuthenticationPrincipal UserDetails userDetails) {
+        if (userDetails == null) {
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("User not authenticated");
+        }
+
         Optional<User> userOpt = userService.findByEmail(userDetails.getUsername());
         if (userOpt.isPresent()) {
             User user = userOpt.get();
@@ -107,6 +113,7 @@ public class UserController {
             return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("User not found.");
         }
     }
+
     @PostMapping("/logout")
     public ResponseEntity<String> logout() {
         // Optionally track logout in logs or DB

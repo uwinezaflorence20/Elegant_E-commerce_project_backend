@@ -1,5 +1,6 @@
 package org.example.elegant_ecommerce_backend_project.Review;
 
+import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import lombok.RequiredArgsConstructor;
 import org.example.elegant_ecommerce_backend_project.Dto.ReviewRequest;
 import org.example.elegant_ecommerce_backend_project.Dto.ReviewResponse;
@@ -13,6 +14,7 @@ import java.util.List;
 @RestController
 @RequestMapping("/api/reviews")
 @RequiredArgsConstructor
+@SecurityRequirement(name = "auth")
 public class ReviewController {
 
     private final ReviewService reviewService;

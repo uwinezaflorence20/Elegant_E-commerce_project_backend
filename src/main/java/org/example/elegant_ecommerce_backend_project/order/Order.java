@@ -5,6 +5,7 @@ import jakarta.persistence.*;
 import lombok.*;
 import org.example.elegant_ecommerce_backend_project.User.User;
 
+import java.math.BigDecimal;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
@@ -28,6 +29,7 @@ public class Order {
 
     @Column(nullable = false)
     private String status;
+    private BigDecimal totalPrice;
 
     @Column(name = "created_at", nullable = false, updatable = false)
     private LocalDateTime createdAt;

@@ -1,3 +1,4 @@
+// OrderService.java
 package org.example.elegant_ecommerce_backend_project.order;
 
 import jakarta.transaction.Transactional;
@@ -8,10 +9,12 @@ import org.example.elegant_ecommerce_backend_project.User.User;
 import org.example.elegant_ecommerce_backend_project.User.UserRepository;
 import org.example.elegant_ecommerce_backend_project.product.Product;
 import org.example.elegant_ecommerce_backend_project.product.ProductRepository;
+import org.example.elegant_ecommerce_backend_project.exception.InsufficientStockException;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 
+import java.math.BigDecimal;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
@@ -27,7 +30,6 @@ public class OrderService {
     @Transactional
     public OrderDTO createOrder(List<OrderItemDTO> itemsDTO) {
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
-
         String username = authentication.getName();
 
         User currentUser = userRepository.findByUserName(username)
@@ -39,21 +41,39 @@ public class OrderService {
         order.setCreatedAt(LocalDateTime.now());
 
         List<OrderItem> orderItems = new ArrayList<>();
+        BigDecimal totalPrice = BigDecimal.ZERO;
 
         for (OrderItemDTO itemDTO : itemsDTO) {
             Product product = productRepository.findById(itemDTO.getProductId())
                     .orElseThrow(() -> new RuntimeException("Product not found with id: " + itemDTO.getProductId()));
 
+            int requestedQty = itemDTO.getQuantity();
+            int availableQty = product.getQuantity();
+
+            if (availableQty < requestedQty) {
+                throw new InsufficientStockException(
+                        "Not enough stock for product: " + product.getTitle() +
+                                " (available: " + availableQty + ", requested: " + requestedQty + ")"
+                );
+            }
+
+            product.setQuantity(availableQty - requestedQty);
+            productRepository.save(product);
+
+            BigDecimal itemTotalPrice = product.getPrice().multiply(BigDecimal.valueOf(requestedQty));
+            totalPrice = totalPrice.add(itemTotalPrice);
+
             OrderItem item = new OrderItem();
             item.setOrder(order);
             item.setProduct(product);
-            item.setQuantity(itemDTO.getQuantity());
-            item.setPrice(product.getPrice());
+            item.setQuantity(requestedQty);
+            item.setTotalPrice(itemTotalPrice);
 
             orderItems.add(item);
         }
 
         order.setItems(orderItems);
+        order.setTotalPrice(totalPrice);
 
         Order savedOrder = orderRepository.save(order);
 
@@ -63,13 +83,11 @@ public class OrderService {
     public OrderDTO getOrderById(Long id) {
         Order order = orderRepository.findById(id)
                 .orElseThrow(() -> new RuntimeException("Order not found with id: " + id));
-
         return convertToDTO(order);
     }
 
     public List<OrderDTO> getOrdersByCurrentUser() {
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
-
         String username = authentication.getName();
 
         User currentUser = userRepository.findByUserName(username)
@@ -107,14 +125,13 @@ public class OrderService {
         dto.setCreatedAt(order.getCreatedAt());
         dto.setUserId(order.getUser().getId());
         dto.setUserName(order.getUser().getFullName());
+        dto.setTotalPrice(order.getTotalPrice());
 
         List<OrderItemDTO> itemsDTO = new ArrayList<>();
         for (OrderItem item : order.getItems()) {
             OrderItemDTO itemDTO = new OrderItemDTO();
             itemDTO.setProductId(item.getProduct().getId());
-            itemDTO.setProductName(item.getProduct().getTitle());
             itemDTO.setQuantity(item.getQuantity());
-            itemDTO.setPrice(item.getPrice());
             itemsDTO.add(itemDTO);
         }
 

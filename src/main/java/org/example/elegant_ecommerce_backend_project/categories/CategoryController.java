@@ -16,7 +16,7 @@ public class CategoryController {
 
     @Autowired
     private CategoryService categoryService;
-    @PreAuthorize("hasRole('ADMIN')")
+    @PreAuthorize("hasRole('ROLE_ADMIN')")
     @PostMapping
     public ResponseEntity<String> createCategory(@RequestBody CategoryDto categoryDto) {
         categoryService.createCategory(categoryDto);
@@ -37,7 +37,7 @@ public class CategoryController {
         return ResponseEntity.ok(category);
     }
 
-    @PreAuthorize("hasRole('ADMIN')")
+    @PreAuthorize("hasRole('ROLE_ADMIN')")
     @PutMapping("/{id}")
     public ResponseEntity<String> updateCategory(@PathVariable Long id, @RequestBody CategoryDto categoryDTO) {
         boolean updated = categoryService.updateCategory(id, categoryDTO);
@@ -47,7 +47,7 @@ public class CategoryController {
         return ResponseEntity.notFound().build();
     }
 
-    @PreAuthorize("hasRole('ADMIN')")
+    @PreAuthorize("hasRole('ROLE_ADMIN')")
     @DeleteMapping("/{id}")
     public ResponseEntity<String> deleteCategory(@PathVariable Long id) {
         boolean deleted = categoryService.deleteCategory(id);

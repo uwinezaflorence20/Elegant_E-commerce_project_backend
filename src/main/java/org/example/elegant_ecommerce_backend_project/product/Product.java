@@ -4,6 +4,8 @@ import jakarta.persistence.*;
 import lombok.*;
 import org.example.elegant_ecommerce_backend_project.categories.Category;
 
+import java.math.BigDecimal;
+
 @Getter
 @Setter
 @Entity
@@ -18,7 +20,7 @@ public class Product {
 
     private String title;
     private String description;
-    private double price;
+    private BigDecimal price;
     private int quantity;
     private String size;
     private String color;
