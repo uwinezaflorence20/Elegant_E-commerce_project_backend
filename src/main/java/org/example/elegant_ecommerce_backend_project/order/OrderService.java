@@ -2,8 +2,8 @@ package org.example.elegant_ecommerce_backend_project.order;
 
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
-import org.example.elegant_ecommerce_backend_project.Dto.OrderItemDTO;
 import org.example.elegant_ecommerce_backend_project.Dto.OrderDTO;
+import org.example.elegant_ecommerce_backend_project.Dto.OrderItemDTO;
 import org.example.elegant_ecommerce_backend_project.User.User;
 import org.example.elegant_ecommerce_backend_project.User.UserRepository;
 import org.example.elegant_ecommerce_backend_project.product.Product;
@@ -117,13 +117,13 @@ public class OrderService {
         orderRepository.save(order);
     }
 
-    private OrderDTO convertToDTO(Order order) {
+    public OrderDTO convertToDTO(Order order) {
         OrderDTO dto = new OrderDTO();
         dto.setId(order.getId());
         dto.setStatus(order.getStatus());
         dto.setCreatedAt(order.getCreatedAt());
         dto.setUserId(order.getUser().getId());
-        dto.setUserName(order.getUser().getFullName());
+        dto.setUserName(order.getUser().getFullName());  // full name here
         dto.setTotalPrice(order.getTotalPrice());
 
         List<OrderItemDTO> itemsDTO = new ArrayList<>();
