@@ -19,20 +19,26 @@ public class ReviewService {
     private final ProductRepository productRepo;
     private final UserRepository userRepo;
 
-    public void postReview(String email, ReviewRequest request) {
-        User user = userRepo.findByEmail(email).orElseThrow();
-        Product product = productRepo.findById(request.getProductId()).orElseThrow();
+    public void postReview(String username, ReviewRequest request) {
+        User user = userRepo.findByUserName(username)
+                .orElseThrow(() -> new RuntimeException("User not found with username: " + username));
+
+        Product product = productRepo.findById(request.getProductId())
+                .orElseThrow(() -> new RuntimeException("Product not found with ID: " + request.getProductId()));
 
         Review review = new Review();
         review.setUser(user);
         review.setProduct(product);
         review.setComment(request.getComment());
         review.setRating(request.getRating());
+
         reviewRepo.save(review);
     }
 
     public List<ReviewResponse> getReviewsForProduct(Long productId) {
-        Product product = productRepo.findById(productId).orElseThrow();
+        Product product = productRepo.findById(productId)
+                .orElseThrow(() -> new RuntimeException("Product not found with ID: " + productId));
+
         return reviewRepo.findByProduct(product).stream().map(r -> {
             ReviewResponse res = new ReviewResponse();
             res.setUsername(r.getUser().getUsername());
