@@ -2,10 +2,13 @@ package org.example.elegant_ecommerce_backend_project.order;
 
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import lombok.RequiredArgsConstructor;
+import org.example.elegant_ecommerce_backend_project.Cart.CartService;
 import org.example.elegant_ecommerce_backend_project.Dto.OrderDTO;
 import org.example.elegant_ecommerce_backend_project.Dto.OrderItemDTO;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
+import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -17,6 +20,7 @@ import java.util.List;
 public class OrderController {
 
     private final OrderService orderService;
+    private final CartService cartService;
 
     @PostMapping
     public ResponseEntity<OrderDTO> createOrder(@RequestBody List<OrderItemDTO> itemsDTO) {
@@ -47,4 +51,10 @@ public class OrderController {
         orderService.cancelOrder(id);
         return ResponseEntity.noContent().build();
     }
+    @PostMapping("/checkout")
+    public ResponseEntity<OrderDTO> checkout(@AuthenticationPrincipal UserDetails user) {
+        OrderDTO order = cartService.checkoutCart(user.getUsername());
+        return ResponseEntity.ok(order);
+    }
+
 }
