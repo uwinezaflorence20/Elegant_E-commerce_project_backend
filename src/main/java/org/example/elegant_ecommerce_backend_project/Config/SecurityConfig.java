@@ -81,7 +81,7 @@ public class SecurityConfig {
         return configuration.getAuthenticationManager();
     }
 
-    // ✅ CORS configuration for frontend access
+    //CORS configuration for frontend access
     @Bean
     public CorsConfigurationSource corsConfigurationSource() {
         CorsConfiguration configuration = new CorsConfiguration();
