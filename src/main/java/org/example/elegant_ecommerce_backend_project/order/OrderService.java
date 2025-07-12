@@ -1,4 +1,3 @@
-// OrderService.java
 package org.example.elegant_ecommerce_backend_project.order;
 
 import jakarta.transaction.Transactional;
@@ -9,7 +8,7 @@ import org.example.elegant_ecommerce_backend_project.User.User;
 import org.example.elegant_ecommerce_backend_project.User.UserRepository;
 import org.example.elegant_ecommerce_backend_project.product.Product;
 import org.example.elegant_ecommerce_backend_project.product.ProductRepository;
-import org.example.elegant_ecommerce_backend_project.exception.InsufficientStockException;
+import org.example.elegant_ecommerce_backend_project.exception.*;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
@@ -33,7 +32,7 @@ public class OrderService {
         String username = authentication.getName();
 
         User currentUser = userRepository.findByUserName(username)
-                .orElseThrow(() -> new RuntimeException("User not found with username: " + username));
+                .orElseThrow(() -> new UserNotFoundException("User not found with username: " + username));
 
         Order order = new Order();
         order.setUser(currentUser);
@@ -45,7 +44,7 @@ public class OrderService {
 
         for (OrderItemDTO itemDTO : itemsDTO) {
             Product product = productRepository.findById(itemDTO.getProductId())
-                    .orElseThrow(() -> new RuntimeException("Product not found with id: " + itemDTO.getProductId()));
+                    .orElseThrow(() -> new ProductNotFoundException("Product not found with id: " + itemDTO.getProductId()));
 
             int requestedQty = itemDTO.getQuantity();
             int availableQty = product.getQuantity();
@@ -82,7 +81,7 @@ public class OrderService {
 
     public OrderDTO getOrderById(Long id) {
         Order order = orderRepository.findById(id)
-                .orElseThrow(() -> new RuntimeException("Order not found with id: " + id));
+                .orElseThrow(() -> new OrderNotFoundException("Order not found with id: " + id));
         return convertToDTO(order);
     }
 
@@ -91,7 +90,7 @@ public class OrderService {
         String username = authentication.getName();
 
         User currentUser = userRepository.findByUserName(username)
-                .orElseThrow(() -> new RuntimeException("User not found with username: " + username));
+                .orElseThrow(() -> new UserNotFoundException("User not found with username: " + username));
 
         List<Order> orders = orderRepository.findByUserId(currentUser.getId());
 
@@ -105,7 +104,7 @@ public class OrderService {
 
     public OrderDTO updateOrderStatus(Long orderId, String newStatus) {
         Order order = orderRepository.findById(orderId)
-                .orElseThrow(() -> new RuntimeException("Order not found with id: " + orderId));
+                .orElseThrow(() -> new OrderNotFoundException("Order not found with id: " + orderId));
         order.setStatus(newStatus);
         Order updatedOrder = orderRepository.save(order);
         return convertToDTO(updatedOrder);
@@ -113,7 +112,7 @@ public class OrderService {
 
     public void cancelOrder(Long orderId) {
         Order order = orderRepository.findById(orderId)
-                .orElseThrow(() -> new RuntimeException("Order not found with id: " + orderId));
+                .orElseThrow(() -> new OrderNotFoundException("Order not found with id: " + orderId));
         order.setStatus("CANCELLED");
         orderRepository.save(order);
     }
