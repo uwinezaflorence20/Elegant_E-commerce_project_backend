@@ -5,10 +5,11 @@ import org.example.elegant_ecommerce_backend_project.Dto.CartItemResponse;
 import org.example.elegant_ecommerce_backend_project.Dto.OrderDTO;
 import org.example.elegant_ecommerce_backend_project.User.User;
 import org.example.elegant_ecommerce_backend_project.User.UserRepository;
+import org.example.elegant_ecommerce_backend_project.exception.*;
 import org.example.elegant_ecommerce_backend_project.order.Order;
 import org.example.elegant_ecommerce_backend_project.order.OrderItem;
-import org.example.elegant_ecommerce_backend_project.order.OrderService;
 import org.example.elegant_ecommerce_backend_project.order.OrderRepository;
+import org.example.elegant_ecommerce_backend_project.order.OrderService;
 import org.example.elegant_ecommerce_backend_project.product.Product;
 import org.example.elegant_ecommerce_backend_project.product.ProductRepository;
 import org.springframework.stereotype.Service;
@@ -25,7 +26,7 @@ public class CartService {
     private final CartItemRepository cartItemRepo;
     private final ProductRepository productRepo;
     private final UserRepository userRepo;
-    private final OrderRepository orderRepo; // 💡 make sure this is injected
+    private final OrderRepository orderRepo;
     private final OrderService orderService;
 
     public CartService(CartItemRepository cartItemRepo,
@@ -42,10 +43,14 @@ public class CartService {
 
     public void addToCart(String username, CartItemRequest request) {
         User user = userRepo.findByUserName(username)
-                .orElseThrow(() -> new RuntimeException("User not found with username: " + username));
+                .orElseThrow(() -> new UserNotFoundException("User not found with username: " + username));
 
         Product product = productRepo.findById(request.getProductId())
-                .orElseThrow(() -> new RuntimeException("Product not found with ID: " + request.getProductId()));
+                .orElseThrow(() -> new ProductNotFoundException("Product not found with ID: " + request.getProductId()));
+
+        if (request.getQuantity() <= 0) {
+            throw new IllegalArgumentException("Quantity must be positive");
+        }
 
         CartItem item = cartItemRepo.findByUserAndProduct(user, product)
                 .orElse(new CartItem());
@@ -59,7 +64,7 @@ public class CartService {
 
     public List<CartItemResponse> getCartItems(String username) {
         User user = userRepo.findByUserName(username)
-                .orElseThrow(() -> new RuntimeException("User not found with username: " + username));
+                .orElseThrow(() -> new UserNotFoundException("User not found with username: " + username));
 
         return cartItemRepo.findByUser(user).stream().map(item -> {
             CartItemResponse res = new CartItemResponse();
@@ -74,7 +79,7 @@ public class CartService {
 
     public void clearCart(String username) {
         User user = userRepo.findByUserName(username)
-                .orElseThrow(() -> new RuntimeException("User not found"));
+                .orElseThrow(() -> new UserNotFoundException("User not found with username: " + username));
         cartItemRepo.deleteAll(cartItemRepo.findByUser(user));
     }
 
@@ -83,31 +88,31 @@ public class CartService {
             throw new IllegalArgumentException("Quantity must be positive");
         }
         User user = userRepo.findByUserName(username)
-                .orElseThrow(() -> new RuntimeException("User not found"));
+                .orElseThrow(() -> new UserNotFoundException("User not found with username: " + username));
         CartItem item = cartItemRepo.findById(cartItemId)
                 .filter(i -> i.getUser().equals(user))
-                .orElseThrow(() -> new RuntimeException("Cart item not found"));
+                .orElseThrow(() -> new CartItemNotFoundException("Cart item not found for id: " + cartItemId));
         item.setQuantity(quantity);
         cartItemRepo.save(item);
     }
 
     public void removeCartItem(String username, Long cartItemId) {
         User user = userRepo.findByUserName(username)
-                .orElseThrow(() -> new RuntimeException("User not found"));
+                .orElseThrow(() -> new UserNotFoundException("User not found with username: " + username));
         CartItem item = cartItemRepo.findById(cartItemId)
                 .filter(i -> i.getUser().equals(user))
-                .orElseThrow(() -> new RuntimeException("Cart item not found"));
+                .orElseThrow(() -> new CartItemNotFoundException("Cart item not found for id: " + cartItemId));
         cartItemRepo.delete(item);
     }
 
     @Transactional
     public OrderDTO checkoutCart(String username) {
         User user = userRepo.findByUserName(username)
-                .orElseThrow(() -> new RuntimeException("User not found"));
+                .orElseThrow(() -> new UserNotFoundException("User not found with username: " + username));
 
         List<CartItem> cartItems = cartItemRepo.findByUser(user);
         if (cartItems.isEmpty()) {
-            throw new RuntimeException("Cart is empty");
+            throw new CartEmptyException("Cart is empty");
         }
 
         Order order = new Order();
@@ -123,7 +128,7 @@ public class CartService {
             int quantity = cartItem.getQuantity();
 
             if (product.getQuantity() < quantity) {
-                throw new RuntimeException("Not enough stock for " + product.getTitle());
+                throw new InsufficientStockException("Not enough stock for " + product.getTitle());
             }
 
             product.setQuantity(product.getQuantity() - quantity);
